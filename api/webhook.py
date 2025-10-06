@@ -1,10 +1,10 @@
 import json
 import requests
 
-def handler(request):
+def handler(event, context):
     try:
         # Lee el body del request (aviso de TradingView)
-        data = json.loads(request.body)
+        data = json.loads(event['body'])
         
         if not data:
             return {'statusCode': 400, 'body': json.dumps({'error': 'No data'})}
@@ -36,4 +36,3 @@ def handler(request):
             
     except Exception as e:
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
-
