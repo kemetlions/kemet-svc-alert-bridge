@@ -1,21 +1,15 @@
+from fastapi import FastAPI, Request
 import json
 
-def handler(request, context):
+app = FastAPI()
+
+@app.post("/api/webhook")
+async def webhook(request: Request):
     try:
-        # Leer el cuerpo del request
-        data = request.get_json()
+        data = await request.json()
         print("Mensaje recibido:", data)
-
-        # Responder con éxito
-        return {
-            "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"message": "Webhook recibido correctamente"})
-        }
-
+        return {"message": "Webhook recibido correctamente"}
     except Exception as e:
         print("Error:", str(e))
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
-        }
+        return {"error": str(e)}
+
