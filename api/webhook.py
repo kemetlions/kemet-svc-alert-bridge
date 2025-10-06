@@ -1,13 +1,18 @@
-import json
+from flask import Flask, request, jsonify
 import requests
 
-def handler(event, context):
+app = Flask(__name__)
+
+# Tus secretos (ajustado para el grupo PING)
+TELEGRAM_TOKEN = "7959634574:AAHSjTKvWLuakrAKxU4GQ4err6xOzasy59E"
+CHAT_ID = "-100096725017"  # CHAT_ID del grupo PING
+
+@app.route('/', methods=['POST'])
+def webhook():
     try:
-        # Lee el body del request (aviso de TradingView)
-        data = json.loads(event['body'])
-        
+        data = request.get_json(force=True)
         if not data:
-            return {'statusCode': 400, 'body': json.dumps({'error': 'No data'})}
+            return jsonify({'error': 'No data'}), 400
         
         # Saca el mensaje del aviso
         mensaje = data.get('mensaje', '¡Alerta de Kemet! Algo pasó en el mercado. 🦁')
@@ -15,10 +20,6 @@ def handler(event, context):
         # Si no hay 'mensaje', usa el texto completo
         if not mensaje:
             mensaje = str(data)
-        
-        # Tus secretos (ajustado para el grupo PING)
-        TELEGRAM_TOKEN = "7959634574:AAHSjTKvWLuakrAKxU4GQ4err6xOzasy59E"
-        CHAT_ID = "-100096725017"  # CHAT_ID del grupo PING
         
         # Manda el mensaje a Telegram (al grupo PING)
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -30,9 +31,10 @@ def handler(event, context):
         response = requests.post(url, params=params)
         
         if response.status_code == 200:
-            return {'statusCode': 200, 'body': json.dumps({'ok': True, 'mensaje_enviado': mensaje})}
+            return jsonify({'ok': True, 'mensaje_enviado': mensaje}), 200
         else:
-            return {'statusCode': 500, 'body': json.dumps({'error': 'Fallo en Telegram'})}
+            return jsonify({'error': f'Fallo en Telegram: {response.text}'}), 500
             
     except Exception as e:
-        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+        return jsonify({'error': str(e)}), 500
+
