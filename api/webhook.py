@@ -16,11 +16,11 @@ def handler(event, context):
         if not mensaje:
             mensaje = str(data)
         
-        # Tus secretos
+        # Tus secretos (ajustado para el grupo PING)
         TELEGRAM_TOKEN = "7959634574:AAHSjTKvWLuakrAKxU4GQ4err6xOzasy59E"
-        CHAT_ID = "5870967116"
+        CHAT_ID = "-100096725017"  # CHAT_ID del grupo PING
         
-        # Manda el mensaje a Telegram
+        # Manda el mensaje a Telegram (al grupo PING)
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         params = {
             'chat_id': CHAT_ID,
