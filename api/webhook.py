@@ -14,7 +14,7 @@ class handler(BaseHTTPRequestHandler):
             # Lee el cuerpo del request (aviso de TradingView)
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
-            data = json.loads(post_data)  # Parsea el JSON
+            data = json.loads(post_data.decode('utf-8'))  # Parsea el JSON
             
             if not data:
                 self.send_response(400)
