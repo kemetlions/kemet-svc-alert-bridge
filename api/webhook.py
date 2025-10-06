@@ -1,37 +1,37 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, Request
 import requests
+import json
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route("/api/webhook", methods=["POST"])
-def webhook():
+TELEGRAM_TOKEN = "7959634574:AAHSjTKvWLuakAkXlJ4JQG4em6x0zasy5E"
+CHAT_ID = "-100069725017"  # Grupo PING
+
+@app.post("/api/webhook")
+async def webhook(request: Request):
     try:
-        data = request.get_json(force=True)
-        if not data:
-            return jsonify({"error": "No data"}), 400
-        
-        # Extrae el mensaje del aviso de TradingView
-        mensaje = data.get("mensaje", "¡Alerta de Kemet! Algo pasó en el mercado. 🦁")
+        data = await request.json()
+        print("Mensaje recibido:", data)
+
+        # Extraer el mensaje desde TradingView
+        mensaje = data.get("mensaje", "⚡ Alerta de Kemet! Algo pasó en el mercado.")
         if not mensaje:
             mensaje = str(data)
-        
-        # Configuración del bot y grupo de Telegram
-        TELEGRAM_TOKEN = "7959634574:AAHSjTKvWLuakrAKxU4GQ4err6xOzasy59E"
-        CHAT_ID = "-100096725017"  # Grupo PING
-        
-        # Envía el mensaje
+
+        # Enviar mensaje a Telegram
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        params = {
+        payload = {
             "chat_id": CHAT_ID,
             "text": mensaje,
             "parse_mode": "HTML"
         }
-        response = requests.post(url, params=params)
-        
-        if response.status_code == 200:
-            return jsonify({"ok": True, "mensaje_enviado": mensaje}), 200
-        else:
-            return jsonify({"error": f"Fallo en Telegram: {response.text}"}), 500
-    
+
+        response = requests.post(url, data=payload)
+        print("Respuesta Telegram:", response.text)
+
+        return {"status": "ok", "data": data}
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print("Error:", str(e))
+        return {"error": str(e)}
+
